@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía MPA 5.0.6.3 — Solicitud de Pruebas Analíticas</title>
+  <style>
+    :root {
+      --verde: #4a9e4a;
+      --azul: #1a5fa8;
+      --azul-claro: #e8f0fb;
+      --naranja: #e07b00;
+      --rojo: #c0392b;
+      --gris: #f4f6f9;
+      --borde: #d0d7e3;
+      --texto: #1e2535;
+      --texto-suave: #5a6580;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); color: var(--texto); min-height: 100vh; }
+
+    /* HEADER */
+    header { background: var(--azul); color: #fff; padding: 18px 24px 14px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    header h1 { font-size: 1.15rem; font-weight: 700; }
+    header p  { font-size: .82rem; opacity: .8; margin-top: 2px; }
+    .progress-bar-wrap { background: rgba(255,255,255,.2); border-radius: 99px; height: 6px; margin-top: 12px; overflow: hidden; }
+    .progress-bar-fill { background: #7dd87d; height: 100%; border-radius: 99px; transition: width .4s ease; }
+    .progress-label { font-size: .75rem; opacity: .75; margin-top: 5px; text-align: right; }
+
+    /* MAIN */
+    main { max-width: 820px; margin: 28px auto; padding: 0 16px 80px; }
+
+    /* CARD */
+    .step-card { background: #fff; border-radius: 14px; border: 1px solid var(--borde); box-shadow: 0 4px 18px rgba(0,0,0,.07); padding: 30px 34px; animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    .step-number { display: inline-flex; align-items: center; justify-content: center; background: var(--azul); color: #fff; font-size: .75rem; font-weight: 700; width: 26px; height: 26px; border-radius: 50%; margin-bottom: 10px; }
+    .step-card h2 { font-size: 1.25rem; color: var(--azul); margin-bottom: 14px; line-height: 1.3; }
+    .step-card .intro { font-size: .96rem; line-height: 1.65; margin-bottom: 16px; }
+
+    /* CAJAS */
+    .tip,.warning,.info { border-radius: 10px; padding: 12px 15px; font-size: .89rem; line-height: 1.6; margin: 13px 0; }
+    .tip     { background: #edfaed; border-left: 4px solid var(--verde); }
+    .warning { background: #fff7e6; border-left: 4px solid var(--naranja); }
+    .info    { background: var(--azul-claro); border-left: 4px solid var(--azul); }
+    .tip strong,.warning strong,.info strong { display: block; margin-bottom: 3px; }
+
+    /* LISTAS */
+    ol.steps,ul.items { padding-left: 20px; margin: 10px 0; }
+    ol.steps li,ul.items li { margin-bottom: 8px; font-size: .93rem; line-height: 1.55; }
+    ol.steps li strong { color: var(--azul); }
+
+    /* BADGES */
+    .badge { display: inline-block; padding: 1px 8px; border-radius: 5px; font-size: .77rem; font-weight: 700; margin: 0 2px; vertical-align: middle; }
+    .badge-pc   { background: #d6eaff; color: #1a5fa8; }
+    .badge-c    { background: #d6f5e3; color: #1e7e4b; }
+    .badge-r    { background: #fce4d6; color: #c0392b; }
+    .badge-ok   { background: #d6f5e3; color: #1e7e4b; }
+    .badge-warn { background: #fff3cd; color: #856404; }
+
+    /* TABLA ESTADOS */
+    .status-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .87rem; }
+    .status-table th { background: var(--azul); color: #fff; padding: 8px 12px; text-align: left; }
+    .status-table td { padding: 8px 12px; border-bottom: 1px solid var(--borde); }
+    .status-table tr:last-child td { border-bottom: none; }
+    .status-table tr:nth-child(even) td { background: var(--gris); }
+
+    /* FLOW */
+    .flow { display: flex; flex-direction: column; gap: 9px; margin: 14px 0; }
+    .flow-item { display: flex; align-items: flex-start; gap: 11px; background: var(--azul-claro); border-radius: 9px; padding: 10px 13px; }
+    .flow-num { background: var(--azul); color: #fff; font-weight: 700; font-size: .77rem; border-radius: 50%; width: 23px; height: 23px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .flow-text { font-size: .9rem; line-height: 1.5; }
+    .flow-text strong { color: var(--azul); }
+
+    /* COLORES ASISTENCIA */
+    .color-ap  { color: #2e8b57; font-weight: 600; }
+    .color-ce  { color: #e07b00; font-weight: 600; }
+    .color-urg { color: #c0392b; font-weight: 600; }
+    .color-hos { color: #1a5fa8; font-weight: 600; }
+
+    /* ── IMÁGENES ── */
+    .img-section { margin: 20px 0 4px; }
+    .img-section p.img-label { font-size: .78rem; font-weight: 600; color: var(--texto-suave); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+
+    .img-grid { display: flex; flex-direction: column; gap: 14px; }
+    .img-grid.cols2 { flex-direction: row; flex-wrap: wrap; }
+    .img-grid.cols2 .img-wrap { flex: 1 1 300px; }
+
+    .img-wrap { position: relative; }
+    .img-wrap img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--borde);
+      cursor: zoom-in;
+      transition: box-shadow .2s;
+      display: block;
+    }
+    .img-wrap img:hover { box-shadow: 0 4px 20px rgba(26,95,168,.25); }
+    .img-caption { font-size: .78rem; color: var(--texto-suave); margin-top: 5px; text-align: center; font-style: italic; }
+
+    /* LIGHTBOX */
+    #lightbox {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 94vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+    #lightbox-close { position: fixed; top: 16px; right: 20px; color: #fff; font-size: 2rem; cursor: pointer; background: rgba(0,0,0,.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+
+    /* ÍNDICE */
+    .index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 14px 0; }
+    @media (max-width:520px) { .index-grid { grid-template-columns: 1fr; } }
+    .index-item { background: var(--gris); border: 1px solid var(--borde); border-radius: 9px; padding: 10px 13px; cursor: pointer; transition: background .15s, border-color .15s; font-size: .88rem; }
+    .index-item:hover { background: var(--azul-claro); border-color: var(--azul); }
+    .index-item span { display: block; font-weight: 700; color: var(--azul); font-size: .77rem; }
+
+    /* NAV */
+    .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+    .btn { padding: 11px 26px; border-radius: 8px; border: none; font-size: .95rem; font-weight: 600; cursor: pointer; transition: background .2s, transform .1s; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--azul); color: #fff; }
+    .btn-primary:hover { background: #154d8a; }
+    .btn-secondary { background: #e0e6f0; color: var(--texto); }
+    .btn-secondary:hover { background: #ccd4e3; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+    /* FINAL */
+    .final-card { text-align: center; padding: 44px 32px; }
+    .final-icon { font-size: 4rem; margin-bottom: 14px; }
+    .final-card h2 { font-size: 1.55rem; color: var(--verde); margin-bottom: 10px; }
+    .final-card p  { font-size: .98rem; color: var(--texto-suave); max-width: 420px; margin: 0 auto; }
+
+    @media (max-width:600px) { .step-card { padding: 20px 16px; } .step-card h2 { font-size: 1.1rem; } }
+  </style>
+</head>
+<body>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <div id="lightbox-close" onclick="closeLightbox()">✕</div>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<header>
+  <h1>Guía paso a paso — MPA 5.0.6.3</h1>
+  <p>Solicitud de Pruebas Analíticas · Servicio Andaluz de Salud</p>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+  <p class="progress-label" id="progressLabel">Inicio</p>
+</header>
+
+<main>
+  <div id="stepContainer"></div>
+  <div class="nav">
+    <button class="btn btn-secondary" id="btnPrev" onclick="navigate(-1)" disabled>← Anterior</button>
+    <button class="btn btn-primary"   id="btnNext" onclick="navigate(1)">Siguiente →</button>
+  </div>
+</main>
+
+<script>
+/* ── utilidad imágenes ── */
+function img(file, caption) {
+  return `<div class="img-wrap"><img src="img/${file}" alt="${caption}" loading="lazy" onclick="openLightbox(this.src)" /><p class="img-caption">${caption}</p></div>`;
+}
+function imgSection(label, ...imgs) {
+  const multi = imgs.length > 1;
+  return `<div class="img-section"><p class="img-label">${label}</p><div class="img-grid${multi?' cols2':''}">${imgs.join('')}</div></div>`;
+}
+
+const steps = [
+
+/* 0 — PORTADA */
+{
+  title: "¿Qué vas a aprender?",
+  html: `
+    <div class="intro">
+      Esta guía te explica, <strong>paso a paso y sin tecnicismos</strong>, cómo solicitar pruebas analíticas
+      desde la aplicación <strong>MPA versión 5.0.6.3</strong>. No importa si es tu primera vez: cada pantalla
+      está explicada de forma sencilla, con capturas reales del sistema.
+    </div>
+    <div class="info">
+      <strong>Lo que NO cambia con la nueva versión:</strong>
+      Las vías de acceso y las funciones básicas son exactamente iguales que antes.
+      Lo que cambia es el <em>aspecto visual</em> y algunas mejoras internas.
+    </div>
+    <p style="font-size:.9rem;color:var(--texto-suave);margin:16px 0 10px;">Índice — pulsa cualquier paso para ir directo:</p>
+    <div class="index-grid">
+      <div class="index-item" onclick="goTo(1)"><span>Paso 1</span>Cómo acceder a MPA</div>
+      <div class="index-item" onclick="goTo(2)"><span>Paso 2</span>La nueva ventana</div>
+      <div class="index-item" onclick="goTo(3)"><span>Paso 3</span>Datos del paciente</div>
+      <div class="index-item" onclick="goTo(4)"><span>Paso 4</span>Estado de la petición</div>
+      <div class="index-item" onclick="goTo(5)"><span>Paso 5</span>Pestaña Solicitud</div>
+      <div class="index-item" onclick="goTo(6)"><span>Paso 6</span>Juicio Clínico</div>
+      <div class="index-item" onclick="goTo(7)"><span>Paso 7</span>Buscar pruebas</div>
+      <div class="index-item" onclick="goTo(8)"><span>Paso 8</span>Filtros</div>
+      <div class="index-item" onclick="goTo(9)"><span>Paso 9</span>Seleccionar pruebas</div>
+      <div class="index-item" onclick="goTo(10)"><span>Paso 10</span>Alertas y avisos</div>
+      <div class="index-item" onclick="goTo(11)"><span>Paso 11</span>Aceptar y guardar</div>
+      <div class="index-item" onclick="goTo(12)"><span>Paso 12</span>El volante impreso</div>
+      <div class="index-item" onclick="goTo(13)"><span>Paso 13</span>Consultar historial</div>
+    </div>
+    <p style="font-size:.78rem;color:#aaa;margin-top:16px;text-align:center;">Pulsa sobre cualquier imagen para verla ampliada.</p>
+  `
+},
+
+/* 1 — ACCESO */
+{
+  title: "Cómo acceder a MPA",
+  html: `
+    <div class="intro">
+      Se accede a MPA <strong>desde la historia clínica del paciente</strong>, igual que siempre.
+      El acceso varía ligeramente según desde dónde trabajes, pero el resultado es siempre la misma ventana.
+    </div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">1</div><div class="flow-text">Abre la <strong>historia clínica del paciente</strong> en tu estación clínica.</div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div class="flow-text">Busca el icono de <strong>"Pruebas Analíticas"</strong> en la barra lateral o menú de acciones.</div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div class="flow-text">Se abre la <strong>nueva ventana de solicitud MPA 5.0.6.3</strong>.</div></div>
+    </div>
+    <ul class="items">
+      <li><span class="color-ap">● Atención Primaria</span> — desde la consulta del episodio, icono "Pruebas Analíticas" en la barra derecha.</li>
+      <li><span class="color-urg">● Urgencias</span> — desde la ficha de urgencias del paciente, mismo icono lateral.</li>
+      <li><span class="color-ce">● Consulta Externa / Hospitalización</span> — desde el detalle del episodio, menú "Gen. Peticiones" → Laboratorio.</li>
+    </ul>
+    <div class="tip"><strong>Recuerda:</strong> La ruta de acceso es la misma que usabas con MPA 4.17. Solo cambia la pantalla que se abre.</div>
+    ${imgSection('Acceso desde Atención Primaria',
+      img('pag02.jpg','Atención Primaria — icono "Pruebas Analíticas" en la barra derecha'))}
+    ${imgSection('Acceso desde Urgencias y Consulta Externa',
+      img('pag03.jpg','Urgencias — misma ubicación del icono'),
+      img('pag04.jpg','Consulta Externa y Hospitalización — menú "Gen. Peticiones"'))}
+  `
+},
+
+/* 2 — NUEVA VENTANA */
+{
+  title: "La nueva ventana de solicitud",
+  html: `
+    <div class="intro">
+      Al abrir MPA verás una ventana completamente renovada. Está organizada en <strong>3 pestañas</strong>
+      que siguen un orden lógico de trabajo.
+    </div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">1</div><div class="flow-text"><strong>Solicitud</strong> — Datos básicos de la petición (quién pide, para qué, con qué urgencia).</div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div class="flow-text"><strong>Selección de pruebas</strong> — Eliges qué análisis solicitar.</div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div class="flow-text"><strong>Estudio analítico</strong> — Se activa al guardar. Puedes eliminar o imprimir el volante.</div></div>
+    </div>
+    <div class="info"><strong>Dato importante:</strong> La pestaña "Estudio analítico" no aparece activa hasta que la petición ha sido guardada (al pulsar Aceptar).</div>
+    ${imgSection('Así era antes (MPA 4.17) vs cómo es ahora (5.0.6.3)',
+      img('pag06.jpg','MPA 4.17 — ventana anterior'),
+      img('pag07.jpg','MPA 5.0.6.3 — nueva ventana con las 3 pestañas'))}
+  `
+},
+
+/* 3 — DATOS PACIENTE */
+{
+  title: "Datos del paciente y última solicitud",
+  html: `
+    <div class="intro">
+      En la <strong>cabecera de la ventana</strong> (parte superior) tienes toda la información del paciente
+      y de su última analítica, de un vistazo.
+    </div>
+    <ul class="items">
+      <li><strong>Nombre, apellidos, sexo y edad</strong> del paciente.</li>
+      <li><strong>NUHSA</strong> (número de historia clínica).</li>
+      <li><strong>Última solicitud:</strong> fecha y hora. Si no hay ninguna previa, aparece <em>"Sin datos"</em>.</li>
+      <li><strong>Icono de color</strong> → tipo de asistencia de la última solicitud:
+        <ul style="margin-top:5px;padding-left:16px;">
+          <li><span class="color-ap">● Verde — Atención Primaria</span></li>
+          <li><span class="color-ce">● Naranja — Consulta Externa</span></li>
+          <li><span class="color-urg">● Rojo — Urgencias</span></li>
+          <li><span class="color-hos">● Azul — Hospitalización</span></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="tip">
+      <strong>Truco:</strong> Señala el icono de color sin clicar → ves el estado y tipo de asistencia.
+      Clica en la <em>fecha</em> → se abre directamente esa petición anterior.
+    </div>
+    ${imgSection('Cabecera de la nueva ventana — datos del paciente e información de la última solicitud',
+      img('pag09.jpg','Cabecera con datos del paciente, última solicitud e icono de color por tipo de asistencia'))}
+  `
+},
+
+/* 4 — ESTADO PETICIÓN */
+{
+  title: "Estado actual de la petición",
+  html: `
+    <div class="intro">
+      En la cabecera también aparece el <strong>estado en el que se encuentra la petición</strong>.
+      Esto te permite saber en qué punto del proceso está cada analítica.
+    </div>
+    <table class="status-table">
+      <tr><th>Estado</th><th>Qué significa</th></tr>
+      <tr><td>En espera de asignación</td><td>Petición creada, sin laboratorio asignado todavía.</td></tr>
+      <tr><td>Pendiente de extracción</td><td>Tiene laboratorio. Falta extraer la muestra.</td></tr>
+      <tr><td>En transporte</td><td>Muestra extraída, de camino al laboratorio.</td></tr>
+      <tr><td>Pendiente de resultados</td><td>En el laboratorio, procesándose.</td></tr>
+      <tr><td>Recibiendo resultados</td><td>Resultados llegando al sistema.</td></tr>
+      <tr><td>Pendiente de leer</td><td>Resultados disponibles, pendiente de revisión clínica.</td></tr>
+      <tr><td>Pendiente informar al usuario</td><td>Revisado por el clínico, pendiente de comunicar al paciente.</td></tr>
+      <tr><td>Usuario informado</td><td>Proceso completado.</td></tr>
+    </table>
+    <p style="font-size:.88rem;margin-top:10px;font-weight:600;">Estado de impresión:</p>
+    <ul class="items">
+      <li><span style="color:var(--rojo);font-weight:600;">Solicitud no impresa</span> — el volante aún no se ha imprimido.</li>
+      <li><span style="color:var(--verde);font-weight:600;">Solicitud impresa</span> — ya se generó el volante.</li>
+    </ul>
+    <div class="warning"><strong>Importante:</strong> Una vez que la muestra pasa a "En transporte", <strong>ya no se puede reimprimir el volante</strong> para evitar reutilización.</div>
+    ${imgSection('Estado de la petición en la cabecera — código de petición y estados posibles',
+      img('pag10.jpg','Estado actual visible en la cabecera superior de la ventana'))}
+  `
+},
+
+/* 5 — PESTAÑA SOLICITUD */
+{
+  title: "Pestaña Solicitud — Rellenar los datos básicos",
+  html: `
+    <div class="intro">
+      Esta es la primera pestaña que debes revisar. Contiene los datos administrativos y clínicos básicos.
+      Muchos se rellenan automáticamente.
+    </div>
+    <ul class="items">
+      <li><strong>Fecha de solicitud</strong> — automática, con fecha y hora actual.</li>
+      <li><strong>Tipo de asistencia</strong> — según desde dónde accedas.</li>
+      <li><strong>Laboratorio asignado</strong> — si aparece uno, está bien. Si pone <em>"Asignar"</em>, debes elegirlo.</li>
+      <li><strong>Unidad</strong> — unidad funcional peticionaria (se rellena sola).</li>
+      <li><strong>Carácter</strong> — Rutina o Urgente:
+        <ul style="margin-top:4px;padding-left:16px;font-size:.88rem;">
+          <li>AP y Consulta Externa → <strong>Rutina</strong> por defecto.</li>
+          <li>Urgencias y Hospitalización → <strong>Urgente</strong> por defecto.</li>
+        </ul>
+      </li>
+      <li><strong>Profesional</strong> — nombre y CNP del solicitante. <strong>Obligatorio.</strong></li>
+      <li><strong>Motivo de demanda</strong> — Control, Diagnóstico, Epidemiología, Pronóstico u Otros.</li>
+    </ul>
+    <div class="warning"><strong>Atención:</strong> Si falta algún dato obligatorio, la pestaña muestra un aviso <span style="background:#fce4d6;padding:1px 6px;border-radius:4px;font-size:.84rem;color:#c0392b;font-weight:600;">Faltan datos obligatorios</span>. Debes completarlos antes de poder Aceptar.</div>
+    ${imgSection('Pestaña Solicitud — campos principales',
+      img('pag12.jpg','Fecha, tipo de asistencia y laboratorio asignado'),
+      img('pag13.jpg','Unidad, carácter (Rutina/Urgente) y profesional solicitante'))}
+  `
+},
+
+/* 6 — JUICIO CLÍNICO */
+{
+  title: "El Juicio Clínico — dato obligatorio",
+  html: `
+    <div class="intro">
+      Dentro de la pestaña Solicitud hay un campo especialmente importante que <strong>no puedes dejar vacío</strong>:
+      el <strong>Juicio Clínico</strong>.
+    </div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">!</div><div class="flow-text"><strong>Es obligatorio.</strong> Sin él, el botón Aceptar no se activa y no puedes guardar.</div></div>
+    </div>
+    <ul class="items">
+      <li>Se rellena automáticamente con el <strong>diagnóstico del episodio clínico</strong>.</li>
+      <li>Puedes modificarlo si es necesario.</li>
+      <li>Se marca con un asterisco <strong style="color:var(--rojo);">*</strong>.</li>
+    </ul>
+    <div class="info"><strong>Motivo de demanda:</strong> El desplegable permite elegir entre Control, Diagnóstico, Epidemiología, Pronóstico y Otros. El campo "Datos de interés analítico" es libre y opcional.</div>
+    <div class="tip"><strong>Nota:</strong> El motivo de consulta no aparece en pantalla, pero sí se envía automáticamente en la mensajería electrónica MPA-SIL. No tienes que hacer nada extra.</div>
+    ${imgSection('Juicio Clínico, motivo de demanda y alerta de datos obligatorios',
+      img('pag14.jpg','Campo Juicio Clínico (obligatorio, marcado con *) y alerta cuando faltan datos'))}
+  `
+},
+
+/* 7 — BUSCAR PRUEBAS */
+{
+  title: "Selección de pruebas — cómo buscar",
+  html: `
+    <div class="intro">
+      Ve a la pestaña <strong>"Selección pruebas"</strong>. Tienes tres formas de encontrar lo que necesitas:
+    </div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">A</div><div class="flow-text"><strong>Pruebas individuales</strong> — catálogo completo. Ordena por "Edición" (agrupado por área) o "Alfabético".</div></div>
+      <div class="flow-item"><div class="flow-num">B</div><div class="flow-text"><strong>Perfiles</strong> — conjuntos predefinidos (ej: "Básico AP"). Añade un perfil completo de un clic. En 5.0.6.3 ahora se muestra el nombre del perfil en la ventana de selección.</div></div>
+      <div class="flow-item"><div class="flow-num">C</div><div class="flow-text"><strong>Algoritmos</strong> — grupos de pruebas basados en criterios diagnósticos específicos.</div></div>
+    </div>
+    <ul class="items">
+      <li><strong>★ Favoritos</strong> — tus pruebas más usadas, para acceso inmediato. Si los tienes bien configurados, normalmente solo necesitas una página.</li>
+      <li><strong>Buscador Nombre/Sinónimo</strong> — escribe parte del nombre y aparecen todas las coincidencias, incluyendo sinónimos.</li>
+    </ul>
+    <div class="tip"><strong>Mejora en 5.0.6.3:</strong> 3 columnas de pruebas por página (antes eran menos), 50-100 pruebas por página configurable, y scroll en cada página. Más rápido y cómodo.</div>
+    ${imgSection('Pestañas Pruebas / Perfiles / Algoritmos y Favoritos',
+      img('pag23.jpg','Vista general de la pestaña de selección con las opciones Pruebas, Perfiles y Algoritmos'),
+      img('pag17.jpg','Gestión de Favoritos — añade tus pruebas habituales para acceder más rápido'))}
+    ${imgSection('Mejoras en la selección de pruebas en la nueva versión',
+      img('pag24.jpg','3 columnas, contador de pruebas seleccionadas y navegación entre páginas'))}
+  `
+},
+
+/* 8 — FILTROS */
+{
+  title: "Filtros de búsqueda",
+  html: `
+    <div class="intro">
+      Puedes afinar la búsqueda con filtros. Se aplican <strong>solos al seleccionarlos</strong>,
+      sin necesidad de pulsar botón extra.
+    </div>
+    <p style="font-size:.9rem;font-weight:600;margin-bottom:9px;">Filtros básicos (siempre visibles):</p>
+    <ul class="items">
+      <li><strong>Espécimen</strong> — filtra por tipo de muestra (sangre, orina, etc.).</li>
+      <li><strong>Área</strong> — filtra por sección del catálogo (Hematología, Bioquímica, Urianálisis…).</li>
+      <li>El icono <strong>🔄</strong> limpia todos los filtros a la vez.</li>
+    </ul>
+    <p style="font-size:.9rem;font-weight:600;margin:12px 0 8px;">Filtro avanzado (icono embudo ▼):</p>
+    <ul class="items">
+      <li>Panel con filtros adicionales: <strong>Muestra, Sección, Subsección y Clase</strong>.</li>
+      <li>Cada filtro añadido aparece como etiqueta en la cabecera. Para quitar uno, pulsa la <strong>x</strong> junto a él.</li>
+    </ul>
+    <div class="info"><strong>Ejemplo:</strong> Enzimas hepáticas → filtra por Área = "Bioquímica General (sangre)" + Sección = "Enzimas". La lista se reduce a solo esas pruebas.</div>
+    ${imgSection('Filtros básicos: espécimen y área de clasificación',
+      img('pag18.jpg','Filtros básicos de espécimen y área + buscador por nombre/sinónimo'))}
+    ${imgSection('Filtro avanzado y ejemplo de filtro de clasificación del GNC',
+      img('pag19.jpg','Panel de filtro avanzado: Muestra, Sección, Subsección y Clase'),
+      img('pag20.jpg','Ejemplo: filtrar por "Bioquímica General (sangre)"'))}
+  `
+},
+
+/* 9 — SELECCIONAR */
+{
+  title: "Cómo seleccionar las pruebas",
+  html: `
+    <div class="intro">
+      Seleccionar una prueba es tan sencillo como <strong>hacer clic sobre ella</strong>.
+      Al seleccionarla queda <span style="color:#1a5fa8;font-weight:600;">marcada en azul</span>.
+    </div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">1</div><div class="flow-text">Haz <strong>clic en el nombre de la prueba</strong>. Queda marcada en azul.</div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div class="flow-text">La vista cambia a 2 columnas y aparece a la derecha la <strong>lista de pruebas seleccionadas</strong>.</div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div class="flow-text">El <strong>contador</strong> (triángulo, esquina superior derecha) muestra cuántas llevas. Clica en él para ver el listado.</div></div>
+    </div>
+    <p style="font-size:.9rem;font-weight:600;margin:12px 0 8px;">Indicadores junto a cada prueba:</p>
+    <ul class="items">
+      <li><span class="badge badge-pc">PC</span> — requiere <strong>Parámetros Complementarios</strong> (datos adicionales).</li>
+      <li><span class="badge badge-c">C</span> — tiene un <strong>Comentario</strong> clínico.</li>
+      <li><span class="badge badge-r">R</span> — hay una <strong>Regla</strong> activa (alerta de repetición o restricción).</li>
+    </ul>
+    <div class="tip"><strong>Ver info de una prueba:</strong> Pon el cursor encima (sin clicar) → desplegable con nombre, sinónimos, espécimen y preanalítica completa. O clica directamente en <span class="badge badge-pc">PC</span>, <span class="badge badge-c">C</span> o <span class="badge badge-r">R</span>.</div>
+    ${imgSection('Tooltip de prueba y sus indicadores',
+      img('pag25.jpg','Al poner el cursor, se despliega nombre convencional, sistemático, CLC, sinónimos y preanalítica'))}
+    ${imgSection('Indicadores PC, C y R — cómo verlos al clicar',
+      img('pag26.jpg','Clicar en PC, C o R muestra directamente la información correspondiente'))}
+    ${imgSection('Pruebas marcadas en azul y lista de pruebas seleccionadas a la derecha',
+      img('pag29.jpg','Al seleccionar pruebas se marcan en azul y aparecen en la columna "Pruebas solicitadas"'))}
+  `
+},
+
+/* 10 — ALERTAS */
+{
+  title: "Alertas y avisos al seleccionar pruebas",
+  html: `
+    <div class="intro">
+      Al seleccionar algunas pruebas el sistema muestra <strong>avisos importantes</strong>.
+      No te alarmes: son ayudas para evitar errores clínicos.
+    </div>
+    <div class="info" style="margin-bottom:12px;">
+      <strong>1. Prueba con Parámetros Complementarios (PC)</strong><br/>
+      Aparece una ventana con datos adicionales a rellenar. Algunos se completan ahora (en la Solicitud)
+      y otros después (en la Extracción). Rellena lo que puedas y pulsa Aceptar.
+    </div>
+    <div class="warning" style="margin-bottom:12px;">
+      <strong>2. Alerta por CLC Incompatible</strong><br/>
+      La prueba es incompatible con otra ya seleccionada.
+      <ul style="margin-top:7px;padding-left:16px;font-size:.88rem;">
+        <li><span class="badge badge-warn">No</span> → no se añade la prueba.</li>
+        <li><span class="badge badge-ok">Sí</span> → aparece campo para <strong>justificar</strong> (mínimo 10 caracteres) y se añade.</li>
+      </ul>
+    </div>
+    <div class="warning">
+      <strong>3. Alerta por Repetición</strong><br/>
+      Esta prueba ya se solicitó recientemente y no ha pasado el plazo recomendado.
+      <ul style="margin-top:7px;padding-left:16px;font-size:.88rem;">
+        <li><span class="badge badge-warn">No</span> → no se añade.</li>
+        <li><span class="badge badge-ok">Sí</span> → justifica el motivo y se añade.</li>
+      </ul>
+    </div>
+    <div class="tip"><strong>Eliminar una prueba ya añadida:</strong> En la columna de pruebas seleccionadas, pulsa el icono de papelera 🗑 junto a la prueba. Si tiene PC, pedirá confirmación.</div>
+    ${imgSection('Tipos de alertas al seleccionar pruebas',
+      img('pag27.jpg','Alerta por PC (parámetros complementarios), CLC incompatible y alerta por repetición'))}
+    ${imgSection('Eliminar una prueba seleccionada',
+      img('pag30.jpg','Icono de papelera en la lista de pruebas seleccionadas — confirma si la prueba tiene PC'))}
+  `
+},
+
+/* 11 — ACEPTAR */
+{
+  title: "Aceptar y guardar la petición",
+  html: `
+    <div class="intro">
+      Cuando hayas seleccionado todas las pruebas y no falte ningún dato obligatorio,
+      el botón <strong>Aceptar</strong> se activa (se pone en azul).
+    </div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">1</div><div class="flow-text">Comprueba que <strong>Aceptar</strong> esté activo (azul). Si está gris, revisa la pestaña Solicitud.</div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div class="flow-text">Pulsa <strong>Aceptar</strong>. La petición queda grabada.</div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div class="flow-text">Se activa la pestaña <strong>"Estudio analítico"</strong> con el volante generado.</div></div>
+      <div class="flow-item"><div class="flow-num">4</div><div class="flow-text">Desde ahí puedes <strong>Imprimir</strong> el volante o <strong>Eliminar</strong> la petición.</div></div>
+      <div class="flow-item"><div class="flow-num">5</div><div class="flow-text">Usa la <strong>flecha ←</strong> de la cabecera para volver a la historia del paciente.</div></div>
+    </div>
+    <div class="warning">
+      <strong>Cuidado al salir sin guardar:</strong> Si pulsas ← con datos sin guardar, aparece un aviso:
+      <ul style="margin-top:6px;padding-left:16px;font-size:.88rem;">
+        <li><strong>Guardar y salir</strong> — guarda y cierra.</li>
+        <li><strong>Salir sin guardar</strong> — cierra y pierde los cambios.</li>
+        <li><strong>Cancelar</strong> — vuelve a la solicitud sin cerrar.</li>
+      </ul>
+    </div>
+    ${imgSection('Botón Aceptar (se activa cuando todo está correcto) y pestaña Estudio analítico',
+      img('pag16.jpg','Botón Aceptar activo y pestaña Estudio analítico disponible tras guardar'))}
+    ${imgSection('Aviso al intentar salir con datos sin guardar',
+      img('pag08.jpg','Alerta con opciones: Guardar y salir / Salir sin guardar / Cancelar'))}
+  `
+},
+
+/* 12 — VOLANTE */
+{
+  title: "El volante impreso",
+  html: `
+    <div class="intro">
+      El volante es el documento que acompaña a la muestra al laboratorio.
+      En la versión 5.0.6.3 tiene mejoras respecto al anterior.
+    </div>
+    <p style="font-size:.9rem;font-weight:600;margin-bottom:9px;">El volante contiene 5 bloques:</p>
+    <ol class="steps">
+      <li><strong>Datos demográficos del paciente</strong> — nombre, fecha nacimiento, NUHSA y dirección.</li>
+      <li><strong>Información de la solicitud</strong> — fecha, tipo de asistencia, laboratorio, unidad, carácter y profesional.</li>
+      <li><strong>Datos de interés analítico</strong> — texto adicional si lo escribiste.</li>
+      <li><strong>Pruebas solicitadas</strong> — listado de todos los análisis, agrupados por tipo.</li>
+      <li><strong>Recomendaciones preanalíticas</strong> — instrucciones para la toma de muestra (contenedores, etiquetas, volúmenes).</li>
+    </ol>
+    <div class="info">
+      <strong>Cambios respecto a la versión anterior:</strong>
+      <ul style="margin-top:6px;padding-left:16px;font-size:.88rem;">
+        <li>Se ha <strong>eliminado</strong> el Diagnóstico y Juicio Clínico del papel impreso (se sigue enviando en la mensajería electrónica).</li>
+        <li>El código de barras y el nº de petición están <strong>separados</strong> del espacio para el nº de laboratorio.</li>
+      </ul>
+    </div>
+    ${imgSection('Vista del volante impreso generado por MPA 5.0.6.3',
+      img('pag32.jpg','Volante con los 5 bloques: datos paciente, solicitud, interés analítico, pruebas y preanalítica'))}
+    ${imgSection('Pestaña Estudio analítico — vista previa e impresión',
+      img('pag31.jpg','Pestaña Estudio analítico activa con botones Eliminar e Imprimir'))}
+  `
+},
+
+/* 13 — HISTORIAL */
+{
+  title: "Consultar peticiones anteriores y trazabilidad",
+  html: `
+    <div class="intro">
+      La nueva versión incluye mejoras importantes en la <strong>trazabilidad</strong>:
+      queda registrado quién hace qué, cuándo y dónde.
+    </div>
+    <ul class="items">
+      <li>Desde el <strong>Histórico de Peticiones</strong> puedes ver todas las solicitudes previas del paciente.</li>
+      <li>Al abrir una solicitud antigua, se muestra en <strong>formato MPA 5.0.6.3</strong>.</li>
+      <li>Si ha sido modificada, verás: <em>"La solicitud ha sido editada por: [nombre] [fecha]"</em>.</li>
+      <li>El icono <strong>ℹ</strong> muestra los datos de trazabilidad: quién la modificó, cuándo y dónde.</li>
+    </ul>
+    <div class="warning">
+      <strong>Peticiones de cribado (PDPCC/PDPCCU):</strong> No las modifiques en MPA ni en el SIL.
+      Si necesitas corregir un resultado pasados 7 días del cierre, usa el <strong>protocolo ARCO</strong>
+      (formulario oficial del Servicio Andaluz de Salud).
+    </div>
+    <div class="tip"><strong>Resumen final:</strong> Lo que cambia en MPA 5.0.6.3 es el aspecto y la organización. Lo que sabes de antes sigue funcionando igual. Esta versión es más clara, más rápida y deja más rastro para la seguridad del paciente.</div>
+    ${imgSection('Consulta desde el histórico de peticiones — formato MPA 5.0.6.3',
+      img('pag33.jpg','Histórico de peticiones y vista de la solicitud en el nuevo formato'))}
+    ${imgSection('Datos de trazabilidad — quién modificó, cuándo y dónde',
+      img('pag35.jpg','Tabla de trazabilidad accesible desde el icono ℹ de la cabecera de la solicitud'))}
+  `
+},
+
+/* FIN */
+{
+  title: "¡Guía completada!",
+  final: true,
+  html: `
+    <div class="final-card">
+      <div class="final-icon">✅</div>
+      <h2>¡Lo has repasado todo!</h2>
+      <p>Ya conoces el funcionamiento completo de MPA 5.0.6.3 para solicitar pruebas analíticas.</p>
+      <br/>
+      <p style="font-size:.88rem;color:#999;">Puedes volver a cualquier paso usando "Anterior" o el índice del inicio.</p>
+      <br/>
+      <button class="btn btn-primary" onclick="goTo(0)" style="margin-top:8px;">Volver al inicio</button>
+    </div>
+  `
+}
+
+]; // end steps
+
+let current = 0;
+
+function render(index) {
+  const s = steps[index];
+  const total = steps.length - 2;
+  const pct = index === 0 ? 0 : index >= steps.length - 1 ? 100 : Math.round((index / total) * 100);
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    index === 0 ? 'Inicio' :
+    index >= steps.length - 1 ? 'Completado' :
+    `Paso ${index} de ${total}`;
+
+  const numHtml = (!s.final && index > 0 && index < steps.length - 1)
+    ? `<div class="step-number">${index}</div>` : '';
+
+  document.getElementById('stepContainer').innerHTML = `
+    <div class="step-card">
+      ${numHtml}
+      ${!s.final ? `<h2>${s.title}</h2>` : ''}
+      ${s.html}
+    </div>
+  `;
+
+  document.getElementById('btnPrev').disabled = index === 0;
+  document.getElementById('btnNext').disabled = index === steps.length - 1;
+  document.getElementById('btnNext').textContent =
+    index === steps.length - 2 ? 'Finalizar ✓' : 'Siguiente →';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigate(dir) {
+  current = Math.max(0, Math.min(steps.length - 1, current + dir));
+  render(current);
+}
+function goTo(i) { current = i; render(i); }
+
+/* Lightbox */
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+render(0);
+</script>
+</body>
+</html>
